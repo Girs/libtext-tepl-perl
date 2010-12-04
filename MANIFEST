@@ -1,0 +1,12 @@
+Changes
+MANIFEST
+Makefile.PL
+README
+lib/Text/Tepl.pm
+t/00.load.t
+t/01.tepl.t
+t/02.compose.t
+t/perlcritic.t
+t/perlcriticrc
+t/pod-coverage.t
+t/pod.t
