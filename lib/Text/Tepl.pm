@@ -5,7 +5,7 @@ use Carp qw(croak);
 use base qw(Exporter);
 
 # $Id$
-use version; our $VERSION = '0.002';
+use version; our $VERSION = '0.003';
 
 our @EXPORT_OK = qw(call compose);
 
@@ -28,8 +28,10 @@ sub compose {
     );
     while ($eperl =~ m{\G
         (.*?)
-        (?:\<\?(p(?:er)?l)(\:[a-zA-Z0-9_:.-]*)?[\r\n\t\x20]+(.*?)\?\>
-        |  \{\?(p(?:er)?l)(\:[a-zA-Z0-9_:.-]*)?[\r\n\t\x20]+(.*?)\?\}
+        (?:\<\?(p(?:er)?l)(\:[a-zA-Z0-9_:.-]*)?[\r\n\t\x20]+
+            (.*?)[\r\n\t\x20]*\?\>
+        |  \{\?(p(?:er)?l)(\:[a-zA-Z0-9_:.-]*)?[\r\n\t\x20]+
+            (.*?)[\r\n\t\x20]*\?\}
         ) (?:\n|\r\n?)?
     }gcmosx) {
         my $text = $1 || q{};
@@ -45,10 +47,14 @@ sub compose {
         if (! $modifier) {
             $perl .= qq{$code\n};
         } else {
-            my @m = grep { $_ } split /:/msx, $modifier;
-            $perl .= qq{$_TEPL .= filter([}
-                . (join q{,}, map { qq{'$_'} } @m ? @m : q{*})
-                . qq{], $code);\n};
+            my @filter_list = grep { $_ } split /:/msx, $modifier;
+            if (! @filter_list) {
+                push @filter_list, q{};
+            }
+            for my $filter (@filter_list) {
+                $code = "filter_$filter($code)";
+            }
+            $perl .= qq{$_TEPL .= $code;\n};
         }
     }
     if (pos $eperl) {
@@ -71,7 +77,7 @@ Text::Tepl - A kind of embeded perl.
 
 =head1 VERSION
 
-0.002
+0.003
 
 =head1 SYNOPSIS
 
@@ -85,8 +91,8 @@ Text::Tepl - A kind of embeded perl.
       - "<?pl: $item ?>"
     <?pl } ?>
     EOS
-    sub filter {
-        my($list, @arg) = @_;
+    sub filter_ {
+        my(@arg) = @_;
         my $s = join q{}, @arg;
         $s =~ s{"}{\\"}g;
         return $s;
@@ -108,7 +114,7 @@ Text::Tepl is a light-weight implementation of the embeded perl (eperl).
 
 =head1 MARKUP
 
-Tepl recognizes embeded perl statements in the processing
+Text::Tepl recognizes embeded perl statements in the processing
 instructions named pl or perl. 
 
     <?pl
@@ -126,9 +132,17 @@ names become the chains of modifiers.
 
 Above examle is converted to:
 
-    $__TEPL .= filter(['foo','bar','xml'], $thing );
+    $_TEPL .= filter_xml(filter_bar(filter_foo($thing)));
 
-where variable C<$__TEPL> is the container for result text.
+where variable C<$_TEPL> is the container for result text.
+
+In the default, anonymous filter C<filter_(@arg)> is used.
+
+    <?pl: $thing ?>
+
+produces
+
+    $_TEPL .= filter_($thing);
 
 For speceial cases such as embeded perl code in attributes,
 Tepl recognizes blases notations. In blases notation, you
@@ -139,18 +153,24 @@ can write escaped special characters for XML: &gt;, &lt;,
 
 produces codes as below.
 
-    $__TEPL .= q{<a href="};
-    $__TEPL .= filter(['uri'], $self->permalink );
-    $__TEPL .= q{">};
+    $_TEPL .= q{<a href="};
+    $_TEPL .= filter_uri($self->permalink);
+    $_TEPL .= q{">};
+
+But we shall write it without escaped characters.
+
+    <?pl for my $link ($self->permalink) { ?>
+    <a href="{?pl:uri $link ?}">
+    <?pl } ?>
 
 =head1 SUBROUTINES
 
 =over
 
-=item C<< __PACKAGE__::filter($list, @args); >>
+=item C<< __PACKAGE__::filter_(@args); >>
 
-To run composed perl scripts, you must write a filter
-function in the package.
+To run composed perl scripts, you must write filter
+functions in stringy-evaled package.
 
 =item C<< $text = Text::Tepl::call($eperl_script, @args); >>
 

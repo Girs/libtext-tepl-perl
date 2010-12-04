@@ -60,7 +60,6 @@ sub{
 my $_TEPL = q{};
 for my $a (map { "$_ : $Hoge{$_}" } keys %Hoge) {
      }
-
 $_TEPL;
 }
 
@@ -71,8 +70,8 @@ $_TEPL;
 --- expected
 sub{
 my $_TEPL = q{};
-for my $a (map { "$_ : $Hoge{$_}" } keys %Hoge) { 
-} 
+for my $a (map { "$_ : $Hoge{$_}" } keys %Hoge) {
+}
 $_TEPL;
 }
 
@@ -88,10 +87,10 @@ sub{
 my $_TEPL = q{};
 $_TEPL .= 'hoge
 ';
-for my $a (map { "$_ : $Hoge{$_}" } keys %Hoge) { 
+for my $a (map { "$_ : $Hoge{$_}" } keys %Hoge) {
 $_TEPL .= 'fuga
 ';
-} 
+}
 $_TEPL .= 'uga
 ';
 $_TEPL;
@@ -103,7 +102,7 @@ $_TEPL;
 --- expected
 sub{
 my $_TEPL = q{};
-$_TEPL .= filter(['*'], $title );
+$_TEPL .= filter_($title);
 $_TEPL;
 }
 
@@ -113,7 +112,7 @@ $_TEPL;
 --- expected
 sub{
 my $_TEPL = q{};
-$_TEPL .= filter(['a'], $title );
+$_TEPL .= filter_a($title);
 $_TEPL;
 }
 
@@ -123,7 +122,7 @@ $_TEPL;
 --- expected
 sub{
 my $_TEPL = q{};
-$_TEPL .= filter(['a','b'], $title );
+$_TEPL .= filter_b(filter_a($title));
 $_TEPL;
 }
 
@@ -135,9 +134,9 @@ $_TEPL;
 --- expected
 sub{
 my $_TEPL = q{};
-for my $a (map { "$_ : $Hoge{$_}" } keys %Hoge) { 
-$_TEPL .= filter(['*'], $a->{hoge} . 'hoge' );
-} 
+for my $a (map { "$_ : $Hoge{$_}" } keys %Hoge) {
+$_TEPL .= filter_($a->{hoge} . 'hoge');
+}
 $_TEPL;
 }
 
