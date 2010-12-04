@@ -5,7 +5,7 @@ use Carp qw(croak);
 use base qw(Exporter);
 
 # $Id$
-use version; our $VERSION = '0.004';
+use version; our $VERSION = '0.005';
 
 our @EXPORT_OK = qw(call compose);
 
@@ -23,20 +23,20 @@ sub compose {
     my($eperl) = @_;
     my $_TEPL = '$_TEPL';   ## no critic qw(Interpolation)
     my $perl = qq{my $_TEPL = q{};\n};
+    my $ws = qr{[\r\n\t\x20]}msx;
     my %unesc = (
-        amp => q{&}, lt => q{<}, gt => q{>}, quot => q{"}, '#39' => q{'},
+        'amp' => q{&}, 'lt' => q{<}, 'gt' => q{>},
+        'quot' => q{"}, '#39' => q{'},
     );
     while ($eperl =~ m{\G
         (.*?)
-        (?:\<\?(p(?:er)?l)(\:[a-zA-Z0-9_:]*)?[\r\n\t\x20]+
-            (.*?)[\r\n\t\x20]*\?\>
-        |  \{\?(p(?:er)?l)(\:[a-zA-Z0-9_:]*)?[\r\n\t\x20]+
-            (.*?)[\r\n\t\x20]*\?\}
+        (?:\<\?p(?:er)?l (\:[a-zA-Z0-9_:]*)? $ws+ (.*?) $ws* \?\>
+        |  \{\?p(?:er)?l (\:[a-zA-Z0-9_:]*)? $ws+ (.*?) $ws* \?\}
         ) (?:\n|\r\n?)?
     }gcmosx) {
         my $text = $1 || q{};
-        my $modifier = $3 || $6 || q{};
-        my $code = $4 || $7 || q{};
+        my $modifier = $2 || $4 || q{};
+        my $code = $3 || $5 || q{};
         if ($5) {
             $code =~ s{\&(amp|lt|gt|quot|\#39);}{ $unesc{$1} }egmosx;
         }
@@ -77,7 +77,7 @@ Text::Tepl - A kind of embeded perl.
 
 =head1 VERSION
 
-0.004
+0.005
 
 =head1 SYNOPSIS
 
