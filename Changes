@@ -1,3 +1,6 @@
+0.004 Sat Dec  4 13:34:28 2010 UTC
+    * fix filter name reqexp /[A-Za-z0-9_:]+/.
+
 0.003 Sat Dec  4 13:12:20 2010 UTC
     ! incompatible changes from before versions. Now use filter_*() functions.
 
