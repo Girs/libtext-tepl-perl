@@ -15,5 +15,5 @@ can_ok __PACKAGE__, 'call';
 
 is Text::Tepl::call('<?pl: shift ?>', 'a'), 'a', 'call <?pl: shift ?>';
 
-sub filter_ { return shift; }
+sub filter { return $_[1]; }
 

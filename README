@@ -1,4 +1,4 @@
-Text-Tepl version 0.005
+Text-Tepl version 0.006
 
 INSTALLATION
 
@@ -15,7 +15,7 @@ URI
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2009, MIZUTANI Tociyuki
+Copyright (C) 2010, MIZUTANI Tociyuki
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

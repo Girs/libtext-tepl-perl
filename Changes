@@ -1,3 +1,6 @@
+0.006 Mon Dec  6 02:49:45 2010 UTC
+    ! revert filter(\@modifier_name_list, @arg) before 0.002.
+
 0.005 Sat Dec  4 13:43:21 2010 UTC
     * interpolate with white space patterns in the main regexp.
     * remove unusing captures in the main regexp.
